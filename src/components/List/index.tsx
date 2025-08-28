@@ -12,6 +12,8 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated'
 import {updateActiveVideoViewAsync} from '@haileyok/bluesky-video'
+import {type LegendListRef} from "@legendapp/list";
+import {AnimatedLegendList} from "@legendapp/list/reanimated";
 
 import {useDedupe} from '#/lib/hooks/useDedupe'
 import {isIOS, isNative} from '#/platform/detection'
@@ -25,7 +27,7 @@ export {
 } from '#/components/List/ListScrollProvider'
 
 export type ListRef<Item extends {key: string}> =
-  React.MutableRefObject<FlatList<Item> | null>
+  React.MutableRefObject<LegendListRef | null>
 
 type ListProps<Item extends {key: string}> = Omit<
   FlatListProps<Item>,
@@ -89,7 +91,7 @@ type ListProps<Item extends {key: string}> = Omit<
 
 export const List = forwardRef(function List<Item extends {key: string}>(
   props: ListProps<Item>,
-  ref: React.Ref<FlatList<Item>>,
+  ref: React.Ref<LegendListRef>,
 ) {
   const t = useTheme()
   const {activeLightbox} = useLightbox()
@@ -168,7 +170,7 @@ export const List = forwardRef(function List<Item extends {key: string}>(
   }
 
   return (
-    <Animated.FlatList
+    <AnimatedLegendList
       ref={ref}
       keyExtractor={props.keyExtractor || (i => i.key)}
       viewabilityConfig={viewabilityConfig}
@@ -221,5 +223,5 @@ export const List = forwardRef(function List<Item extends {key: string}>(
     />
   )
 }) as <Item extends {key: string}>(
-  props: ListProps<Item> & {ref?: React.Ref<FlatList<Item>>},
+  props: ListProps<Item> & {ref?: React.Ref<LegendListRef>},
 ) => React.ReactElement
