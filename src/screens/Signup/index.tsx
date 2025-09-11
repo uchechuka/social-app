@@ -172,7 +172,7 @@ export function Signup({onPressBack}: {onPressBack: () => void}) {
                     : '3'}
                 </Trans>
               </Text>
-              <Text style={[a.text_3xl, a.font_heavy]}>
+              <Text style={[a.text_3xl, a.font_bold]}>
                 {state.activeStep === SignupStep.INFO ? (
                   <Trans>Your account</Trans>
                 ) : state.activeStep === SignupStep.HANDLE ? (
