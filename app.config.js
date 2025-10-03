@@ -33,10 +33,11 @@ module.exports = function (_config) {
   return {
     expo: {
       version: VERSION,
-      name: 'Bluesky',
-      slug: 'bluesky',
-      scheme: 'bluesky',
+      name: 'ebube',
+      slug: 'ebube',
+      scheme: 'ebube',
       owner: 'blueskysocial',
+      platforms: ['ios', 'android', 'web'],
       runtimeVersion: {
         policy: 'appVersion',
       },
@@ -169,7 +170,9 @@ module.exports = function (_config) {
         ],
       },
       web: {
-        favicon: './assets/favicon.png',
+        favicon: './web/images/logo.png',
+        title: 'ebube',
+        bundler: 'webpack',
       },
       updates: {
         url: 'https://updates.bsky.app/manifest',
