@@ -336,6 +336,7 @@ func serve(cctx *cli.Context) error {
 
 	// ipcc
 	e.GET("/ipcc", server.WebIpCC)
+	e.GET("/*", server.WebGeneric)
 
 	if linkHost != "" {
 		linkUrl, err := url.Parse(linkHost)
@@ -454,7 +455,7 @@ func (srv *Server) WebGeneric(c echo.Context) error {
 
 func (srv *Server) WebHome(c echo.Context) error {
 	data := srv.NewTemplateContext()
-	return c.Render(http.StatusOK, "home.html", data)
+	return c.Render(http.StatusOK, "base.html", data)
 }
 
 func (srv *Server) WebPost(c echo.Context) error {
@@ -465,12 +466,12 @@ func (srv *Server) WebPost(c echo.Context) error {
 	rkeyParam := c.Param("rkey")
 	rkey, err := syntax.ParseRecordKey(rkeyParam)
 	if err != nil {
-		return c.Render(http.StatusOK, "post.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 	handleOrDIDParam := c.Param("handleOrDID")
 	handleOrDID, err := syntax.ParseAtIdentifier(handleOrDIDParam)
 	if err != nil {
-		return c.Render(http.StatusOK, "post.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 
 	identifier := handleOrDID.Normalize().String()
@@ -479,7 +480,7 @@ func (srv *Server) WebPost(c echo.Context) error {
 	pv, err := appbsky.ActorGetProfile(ctx, srv.xrpcc, identifier)
 	if err != nil {
 		log.Warnf("failed to fetch profile for: %s\t%v", identifier, err)
-		return c.Render(http.StatusOK, "post.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 	unauthedViewingOkay := true
 	for _, label := range pv.Labels {
@@ -497,7 +498,7 @@ func (srv *Server) WebPost(c echo.Context) error {
 		if pv.DisplayName != nil {
 			data["profileDisplayName"] = *pv.DisplayName
 		}
-		return c.Render(http.StatusOK, "post.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 
 	// then fetch the post thread (with extra context)
@@ -505,7 +506,7 @@ func (srv *Server) WebPost(c echo.Context) error {
 	tpv, err := appbsky.FeedGetPostThread(ctx, srv.xrpcc, 1, 0, uri)
 	if err != nil {
 		log.Warnf("failed to fetch post: %s\t%v", uri, err)
-		return c.Render(http.StatusOK, "post.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 
 	postView := tpv.Thread.FeedDefs_ThreadViewPost.Post
@@ -534,7 +535,7 @@ func (srv *Server) WebPost(c echo.Context) error {
 		}
 	}
 
-	return c.Render(http.StatusOK, "post.html", data)
+	return c.Render(http.StatusOK, "base.html", data)
 }
 
 func (srv *Server) WebStarterPack(c echo.Context) error {
@@ -547,33 +548,33 @@ func (srv *Server) WebStarterPack(c echo.Context) error {
 	rkey, err := syntax.ParseRecordKey(rkeyParam)
 	if err != nil {
 		log.Errorf("bad rkey: %v", err)
-		return c.Render(http.StatusOK, "starterpack.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 	handleOrDIDParam := c.Param("handleOrDID")
 	handleOrDID, err := syntax.ParseAtIdentifier(handleOrDIDParam)
 	if err != nil {
 		log.Errorf("bad identifier: %v", err)
-		return c.Render(http.StatusOK, "starterpack.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 	identifier := handleOrDID.Normalize().String()
 	starterPackURI := fmt.Sprintf("at://%s/app.bsky.graph.starterpack/%s", identifier, rkey)
 	spv, err := appbsky.GraphGetStarterPack(ctx, srv.xrpcc, starterPackURI)
 	if err != nil {
 		log.Errorf("failed to fetch starter pack view for: %s\t%v", starterPackURI, err)
-		return c.Render(http.StatusOK, "starterpack.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 	if spv.StarterPack == nil || spv.StarterPack.Record == nil {
-		return c.Render(http.StatusOK, "starterpack.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 	rec, ok := spv.StarterPack.Record.Val.(*appbsky.GraphStarterpack)
 	if !ok {
-		return c.Render(http.StatusOK, "starterpack.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 	data["title"] = rec.Name
 	if srv.cfg.ogcardHost != "" {
 		data["imgThumbUrl"] = fmt.Sprintf("%s/start/%s/%s", srv.cfg.ogcardHost, identifier, rkey)
 	}
-	return c.Render(http.StatusOK, "starterpack.html", data)
+	return c.Render(http.StatusOK, "base.html", data)
 }
 
 func (srv *Server) WebProfile(c echo.Context) error {
@@ -584,14 +585,14 @@ func (srv *Server) WebProfile(c echo.Context) error {
 	handleOrDIDParam := c.Param("handleOrDID")
 	handleOrDID, err := syntax.ParseAtIdentifier(handleOrDIDParam)
 	if err != nil {
-		return c.Render(http.StatusOK, "profile.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 	identifier := handleOrDID.Normalize().String()
 
 	pv, err := appbsky.ActorGetProfile(ctx, srv.xrpcc, identifier)
 	if err != nil {
 		log.Warnf("failed to fetch profile for: %s\t%v", identifier, err)
-		return c.Render(http.StatusOK, "profile.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 	unauthedViewingOkay := true
 	for _, label := range pv.Labels {
@@ -600,13 +601,13 @@ func (srv *Server) WebProfile(c echo.Context) error {
 		}
 	}
 	if !unauthedViewingOkay {
-		return c.Render(http.StatusOK, "profile.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 	req := c.Request()
 	data["profileView"] = pv
 	data["requestURI"] = fmt.Sprintf("https://%s%s", req.Host, req.URL.Path)
 	data["requestHost"] = req.Host
-	return c.Render(http.StatusOK, "profile.html", data)
+	return c.Render(http.StatusOK, "base.html", data)
 }
 
 func (srv *Server) WebFeed(c echo.Context) error {
@@ -617,12 +618,12 @@ func (srv *Server) WebFeed(c echo.Context) error {
 	rkeyParam := c.Param("rkey")
 	rkey, err := syntax.ParseRecordKey(rkeyParam)
 	if err != nil {
-		return c.Render(http.StatusOK, "feed.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 	handleOrDIDParam := c.Param("handleOrDID")
 	handleOrDID, err := syntax.ParseAtIdentifier(handleOrDIDParam)
 	if err != nil {
-		return c.Render(http.StatusOK, "feed.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 
 	identifier := handleOrDID.Normalize().String()
@@ -631,7 +632,7 @@ func (srv *Server) WebFeed(c echo.Context) error {
 	pv, err := appbsky.ActorGetProfile(ctx, srv.xrpcc, identifier)
 	if err != nil {
 		log.Warnf("failed to fetch profile for: %s\t%v", identifier, err)
-		return c.Render(http.StatusOK, "feed.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 	unauthedViewingOkay := true
 	for _, label := range pv.Labels {
@@ -641,7 +642,7 @@ func (srv *Server) WebFeed(c echo.Context) error {
 	}
 
 	if !unauthedViewingOkay {
-		return c.Render(http.StatusOK, "feed.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 	did := pv.Did
 	data["did"] = did
@@ -651,13 +652,13 @@ func (srv *Server) WebFeed(c echo.Context) error {
 	fgv, err := appbsky.FeedGetFeedGenerator(ctx, srv.xrpcc, feedURI)
 	if err != nil {
 		log.Warnf("failed to fetch feed generator: %s\t%v", feedURI, err)
-		return c.Render(http.StatusOK, "feed.html", data)
+		return c.Render(http.StatusOK, "base.html", data)
 	}
 	req := c.Request()
 	data["feedView"] = fgv.View
 	data["requestURI"] = fmt.Sprintf("https://%s%s", req.Host, req.URL.Path)
 
-	return c.Render(http.StatusOK, "feed.html", data)
+	return c.Render(http.StatusOK, "base.html", data)
 }
 
 type IPCCRequest struct {

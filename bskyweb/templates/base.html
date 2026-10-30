@@ -86,7 +86,6 @@
     }
   </style>
 
-  {% include "scripts.html" %}
   <link rel="icon" href="/images/logo.png" type="image/png">
   <link rel="apple-touch-icon" href="/images/logo.png">
   <meta name="theme-color">
@@ -97,6 +96,7 @@
   <link type="application/activity+json" href="" />
 
   {% block html_head_extra -%}{%- endblock %}
+  {% include "scripts.html" %}
 </head>
 <body>
 {%- block body_all %}
